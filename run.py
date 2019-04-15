@@ -1,4 +1,4 @@
 from backendAPI import app
 
 if __name__ == '__main__':
-    app.run()
+    app.run(process.env.PORT)
