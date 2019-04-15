@@ -7,6 +7,7 @@ import requests
 import pandas as pd
 import base64
 import csv
+import pandas
 
 app = Flask(__name__)
 
@@ -24,19 +25,21 @@ def application(environ, start_response):
     return ''
 
 def classify(request_data):
+	#rows = []
+	#filename = r'C:\\Users\shreyangi_prasad\\Desktop\\hackathon\\X_validation.csv'
+	df = pandas.read_csv('.\X_validation.csv')
+		# csvreader = csv.reader(csvfile)
+  	# for row in :
+   	# 	rows.append(row)
 
-	rows = []
-	filename = "C:\Users\shreyangi_prasad\Desktop\hackathon\X_validation.csv"
-	with open(filename, 'r') as csvfile:
-		csvreader = csv.reader(csvfile)
-    	for row in csvreader: 
-        	rows.append(row) 
 
-
-	svm_clf = pickle.load(open("./svm_model.pkl","rb"))
-	xgboost_clf = pickle.load(open("./xgboost.pkl","rb"))
+	with open('.\model_Xgboost', 'rb') as f:
+		model_xgboost = pickle.load(f)
+		
+	svm_clf = pickle.load(open(r'svm_model',"rb"))
+	xgboost_clf = pickle.load(open(r'model_Xgboost',"rb"))
 	
-	text_data = rows[0]
+	text_data = df[0]
 	# text_data = clean_text(text_data)
 	# subject_data = request_data['subject']
 	# subject_data = clean_text(subject_data)
@@ -50,13 +53,18 @@ def classify(request_data):
 		failure=0
 
 	response_obj = {}
-	response_obj['failure'] = xgboost_prediction
+	response_obj['failure'] = failure
+	return response_obj
 
-@app.route('/classifyPost', methods=['GET', 'POST'])
+@app.route('/')
+def helloworld():
+	return "hello world"
+
+@app.route('/classifyPost', methods=['POST'])
 def classifyPost():
 	if(request.data):
 		request_data = request.json
-		if('text' in request_data.keys() and 'subject' in request_data.keys()):
+		if('service_tag' in request_data.keys()):
 			response_object = classify(request_data)
 		else:
 			response_object = {'error': 'Bad Request'}
@@ -67,4 +75,4 @@ def classifyPost():
 	return(json_response)
 
 if __name__ == '__main__':
-	app.run()
+	app.run(debug=True)
