@@ -27,27 +27,25 @@ def application(environ, start_response):
 def classify(request_data):
 	#rows = []
 	#filename = r'C:\\Users\shreyangi_prasad\\Desktop\\hackathon\\X_validation.csv'
-	df = pandas.read_csv('.\X_validation.csv')
+	df = pandas.read_csv(r'.\X_validation.csv')
 		# csvreader = csv.reader(csvfile)
   	# for row in :
    	# 	rows.append(row)
+	fileName=r'.\xgboost_model.pkl'
+	model_xgboost = pickle.load(open(fileName, 'rb'))
 
-
-	with open('.\model_Xgboost', 'rb') as f:
-		model_xgboost = pickle.load(f)
-		
-	svm_clf = pickle.load(open(r'svm_model',"rb"))
-	xgboost_clf = pickle.load(open(r'model_Xgboost',"rb"))
+	fileName1 = r'.\svm_model.pkl'
+	model_svm = pickle.load(open(fileName1, 'rb'))
 	
-	text_data = df[0]
+	text_data = df.iloc[9]
 	# text_data = clean_text(text_data)
 	# subject_data = request_data['subject']
 	# subject_data = clean_text(subject_data)
 
-	svm_prediction = svm_clf.predict([text_data])
+	svm_prediction = model_svm.predict([text_data])
 	
 	if(svm_prediction==1):
-		xgboost_prediction = xgboost_clf.predict([text_data])[0]
+		xgboost_prediction = model_xgboost.predict([text_data])[0]
 		failure=xgboost_prediction
 	else:
 		failure=0
